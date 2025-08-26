@@ -1,0 +1,9 @@
+train:
+  test_size: 0.2
+  random_state: 42
+  smote_random_state: 42
+  penalties:
+    - l1
+    - l2
+    - elasticnet
+  l1_ratio: 0.5 # Required for elasticnet penalty
