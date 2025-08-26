@@ -51,22 +51,22 @@ if __name__ == "__main__":
     cleaned_data_path = 'data/raw/cleaned_telco_churn.csv'
     
     # Define the output file paths for the prepared data
-    processed_data_path = 'data/processed'
+    interim_data_path = 'data/interim'
 
     # Preprocess the data
     X_features, y_target = preprocess_data(cleaned_data_path)
     
     if X_features is not None and y_target is not None:
         try:
-            # Save the processed data to CSV files
-            if not os.path.isdir(processed_data_path):
-                os.makedirs(processed_data_path)
-            X_features.to_csv(os.path.join(processed_data_path, 'x_features.csv'), index=False)
-            y_target.to_csv(os.path.join(processed_data_path, 'y_target.csv'), index=False)
+            # Save the interim data to CSV files
+            if not os.path.isdir(interim_data_path):
+                os.makedirs(interim_data_path)
+            X_features.to_csv(os.path.join(interim_data_path, 'x_features.csv'), index=False)
+            y_target.to_csv(os.path.join(interim_data_path, 'y_target.csv'), index=False)
             
             print("Data pre-processing successful.")
-            print(f"\nFeatures (X) saved to '{os.path.join(processed_data_path, 'x_features.csv')}'")
-            print(f"Target (y) saved to '{os.path.join(processed_data_path, 'x_target.csv')}'")
+            print(f"\nFeatures (X) saved to '{os.path.join(interim_data_path, 'x_features.csv')}'")
+            print(f"Target (y) saved to '{os.path.join(interim_data_path, 'y_target.csv')}'")
             
             print("\nShape of features (X):", X_features.shape)
             print("Shape of target (y):", y_target.shape)

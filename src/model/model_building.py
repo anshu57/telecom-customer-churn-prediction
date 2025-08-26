@@ -1,5 +1,4 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
 from imblearn.over_sampling import SMOTE
@@ -13,6 +12,7 @@ import os
 import yaml
 import dagshub
 import pickle
+import json
 
 # dagshub_token = os.getenv("DAGSHUB_TOKEN")
 # if not dagshub_token:
@@ -29,10 +29,10 @@ repo_owner = 'anshu57'
 repo_name = 'telecom-customer-churn-prediction'
 dagshub.init(repo_owner='anshu57', repo_name='telecom-customer-churn-prediction', mlflow=True)
 mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
-mlflow.set_experiment("Logistic Regression")
-print("experimenting LR model")
+mlflow.set_experiment("Logistic_Regression")
 
-def train_multiple_models_with_penalties(features_path, target_path, params_path='params.yaml'):
+
+def train_multiple_models_with_penalties(training_data_path, params_path = 'params.yaml'):
     """
     Loads prepared data, applies SMOTE, trains a Logistic Regression model
     for each specified penalty, and logs the results to MLflow.
@@ -48,22 +48,24 @@ def train_multiple_models_with_penalties(features_path, target_path, params_path
         params = yaml.safe_load(f)['train']
     
     try:
-        X = pd.read_csv(features_path)
-        y = pd.read_csv(target_path).squeeze()
+        train_df = pd.read_csv(os.path.join(training_data_path,'train_processed.csv'))
     except FileNotFoundError as e:
-        print(f"Error: {e}. Please ensure '{features_path}' and '{target_path}' exist.")
+        print(f"Error: {e}. Please ensure '{training_data_path}' exist.")
         return
 
 
-    # Split the data once for all models to ensure a fair comparison
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=params['test_size'], random_state=params['random_state'], stratify=y)
+ 
     
     # Apply SMOTE to the training data only
     smote = SMOTE(random_state=params['smote_random_state'])
+    X_train = train_df.drop('Churn', axis=1)
+    y_train = train_df['Churn']
     X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
 
+    best_metric = 0
+
     for penalty in params['penalties']:
-        with mlflow.start_run(run_name=f"LogisticRegression_{penalty}"):
+        with mlflow.start_run(run_name=f"LogisticRegression_{penalty}") as run:
             print(f"Starting MLflow run for Logistic Regression with penalty: {penalty}")
 
             # Log parameters
@@ -80,33 +82,33 @@ def train_multiple_models_with_penalties(features_path, target_path, params_path
 
             model.fit(X_train_resampled, y_train_resampled)
             
-            y_pred = model.predict(X_test)
+            y_pred_train = model.predict(X_train)
             # try:
             #     with open(model_name, "wb") as file:
             #         pickle.dump(model, file)
             # except Exception as e:
             #     raise Exception(f"Error saving model to {model_name}: {e}")
 
-            report = classification_report(y_test, y_pred, output_dict=True)
-            mlflow.log_metric('accuracy', report['accuracy'])
-            mlflow.log_metric('precision_no_churn', report['0']['precision'])
-            mlflow.log_metric('recall_no_churn', report['0']['recall'])
-            mlflow.log_metric('f1_no_churn', report['0']['f1-score'])
-            mlflow.log_metric('precision_churn', report['1']['precision'])
-            mlflow.log_metric('recall_churn', report['1']['recall'])
-            mlflow.log_metric('f1_churn', report['1']['f1-score'])
+            report = classification_report(y_train, y_pred_train, output_dict=True)
+            mlflow.log_metric('train_accuracy', report['accuracy'])
+            mlflow.log_metric('train_precision_no_churn', report['0']['precision'])
+            mlflow.log_metric('train_recall_no_churn', report['0']['recall'])
+            mlflow.log_metric('train_f1_no_churn', report['0']['f1-score'])
+            mlflow.log_metric('train_precision_churn', report['1']['precision'])
+            mlflow.log_metric('train_recall_churn', report['1']['recall'])
+            mlflow.log_metric('train_f1_churn', report['1']['f1-score'])
             
-            signature = infer_signature(X_test,model.predict(X_test))
+            signature = infer_signature(X_train,model.predict(X_train))
             mlflow.sklearn.log_model(sk_model=model, artifact_path=f"model_{penalty}", signature=signature)
 
             # Generate and log confusion matrix
-            cm = confusion_matrix(y_test, y_pred)
+            cm = confusion_matrix(y_train, y_pred_train)
             plt.figure(figsize=(8, 6))
             sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['No Churn', 'Churn'], yticklabels=['No Churn', 'Churn'])
             plt.title(f'Confusion Matrix for Logistic Regression ({penalty})')
             plt.xlabel('Predicted Label')
             plt.ylabel('True Label')
-            plt.savefig(f"confusion_matrix_{penalty}.png")
+            plt.savefig(f"reports/confusion_matrix_{penalty}.png")
             mlflow.log_artifact(f"confusion_matrix_{penalty}.png")
             plt.close()
 
@@ -115,4 +117,4 @@ def train_multiple_models_with_penalties(features_path, target_path, params_path
 if __name__ == "__main__":
     params_path = "params.yaml"
     data_path = "./data/processed"
-    train_multiple_models_with_penalties(os.path.join(data_path,'x_features.csv'), os.path.join(data_path,'y_target.csv'))
+    train_multiple_models_with_penalties(data_path)
