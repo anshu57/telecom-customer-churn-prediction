@@ -108,17 +108,17 @@ def train_multiple_models_with_penalties(training_data_path, params_path = 'para
                 cm = confusion_matrix(y_train, y_pred_train)
                 plt.figure(figsize=(8, 6))
                 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['No Churn', 'Churn'], yticklabels=['No Churn', 'Churn'])
-                plt.title(f'Confusion Matrix for Logistic Regression ({penalty})')
+                plt.title(f'Confusion Matrix for Logistic Regression train ({penalty})')
                 plt.xlabel('Predicted Label')
                 plt.ylabel('True Label')
-                if not os.path.isdir('./reports'):
-                    os.makedirs('./reports')
+                if not os.path.isdir('./reports/train/'):
+                    os.makedirs('./reports/train/')
                 file_name = f'train_{penalty}.json'
-                with open(os.path.join('./reports',file_name), 'w') as file:
+                with open(os.path.join('./reports/train',file_name), 'w') as file:
                         json.dump(report, file, indent=4)
                 
-                plt.savefig(f"reports/confusion_matrix_{penalty}.png")
-                mlflow.log_artifact(f"reports/confusion_matrix_{penalty}.png")
+                plt.savefig(f"reports/train/confusion_matrix_train{penalty}.png")
+                mlflow.log_artifact(f"reports/train/confusion_matrix_train{penalty}.png")
                 plt.close()
 
     print("All models trained and evaluated. Results logged to MLflow/DagsHub.")

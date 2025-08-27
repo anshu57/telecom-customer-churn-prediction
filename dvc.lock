@@ -62,8 +62,8 @@ stages:
       nfiles: 2
     - path: src/model/model_building.py
       hash: md5
-      md5: 12bc1703410fc6073a8c54291adc5380
-      size: 5692
+      md5: 161dcd321530ffe2f6267b390503d5fc
+      size: 5740
     params:
       params.yaml:
         train:
@@ -78,8 +78,8 @@ stages:
     outs:
     - path: reports
       hash: md5
-      md5: 5d0650a67617d588ac0d7e7866aa5cc9.dir
-      size: 72573
+      md5: c10aca26d964dc6a7d2063121dbc3d1b.dir
+      size: 73920
       nfiles: 6
   model_eval:
     cmd: python src/model/model_eval.py
@@ -103,6 +103,6 @@ stages:
       nfiles: 2
     - path: src/model
       hash: md5
-      md5: 12a7c273cb29165c6379ee8c0d7a271f.dir
-      size: 13245
+      md5: 290851bdfe559e3cca8b52630414d933.dir
+      size: 14286
       nfiles: 4

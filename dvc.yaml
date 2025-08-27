@@ -28,12 +28,13 @@ stages:
     params:
     - train
     metrics:
-    - reports:
-        cache: false
+      - reports:
+          cache: false
   model_eval_reg:
     cmd: python src/model/model_eval_reg.py
     deps:
     - src/model
     - ./data/processed
+    
 
     
