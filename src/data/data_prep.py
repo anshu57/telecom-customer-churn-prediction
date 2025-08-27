@@ -37,6 +37,7 @@ def preprocess_data(file_path):
     df_encoded = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
 
     # Separate features (X) and target variable (y)
+    df_encoded.columns = df_encoded.columns.str.replace(r'[() ]', '_', regex=True)
     if 'Churn' in df_encoded.columns:
         X = df_encoded.drop('Churn', axis=1)
         y = df_encoded['Churn']

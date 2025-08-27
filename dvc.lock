@@ -26,12 +26,12 @@ stages:
       size: 971911
     - path: src/data/data_prep.py
       hash: md5
-      md5: f22d4850422fc1f7dbc93db2e642865c
-      size: 2839
+      md5: 662f1caf224c9e8a9104fd0e8975faad
+      size: 2922
     outs:
     - path: data/interim
       hash: md5
-      md5: eed1f49ca75be9a7bb255cfeaa4d0e6a.dir
+      md5: 0fd25717dfde9c7b532cd4d5001ca3b6.dir
       size: 1175536
       nfiles: 2
   data_split:
@@ -39,7 +39,7 @@ stages:
     deps:
     - path: data/interim
       hash: md5
-      md5: eed1f49ca75be9a7bb255cfeaa4d0e6a.dir
+      md5: 0fd25717dfde9c7b532cd4d5001ca3b6.dir
       size: 1175536
       nfiles: 2
     - path: src/data/data_split.py
@@ -49,6 +49,60 @@ stages:
     outs:
     - path: data/processed
       hash: md5
+      md5: d9db842b8457d57cf537781acbbfb1a7.dir
+      size: 1176210
+      nfiles: 2
+  model_building:
+    cmd: python src/model/model_building.py
+    deps:
+    - path: ./data/processed
+      hash: md5
+      md5: d9db842b8457d57cf537781acbbfb1a7.dir
+      size: 1176210
+      nfiles: 2
+    - path: src/model/model_building.py
+      hash: md5
+      md5: 12bc1703410fc6073a8c54291adc5380
+      size: 5692
+    params:
+      params.yaml:
+        train:
+          test_size: 0.2
+          random_state: 42
+          smote_random_state: 42
+          penalties:
+          - l1
+          - l2
+          - elasticnet
+          l1_ratio: 0.5
+    outs:
+    - path: reports
+      hash: md5
+      md5: 5d0650a67617d588ac0d7e7866aa5cc9.dir
+      size: 72573
+      nfiles: 6
+  model_eval:
+    cmd: python src/model/model_eval.py
+    deps:
+    - path: ./data/processed
+      hash: md5
       md5: 23191a60034d5ca363ed60165f982090.dir
       size: 1176210
       nfiles: 2
+    - path: src/model/model_eval.py
+      hash: md5
+      md5: 951b5a60902a126c8b1aa79658b6fcb1
+      size: 5355
+  model_eval_reg:
+    cmd: python src/model/model_eval_reg.py
+    deps:
+    - path: ./data/processed
+      hash: md5
+      md5: d9db842b8457d57cf537781acbbfb1a7.dir
+      size: 1176210
+      nfiles: 2
+    - path: src/model
+      hash: md5
+      md5: 12a7c273cb29165c6379ee8c0d7a271f.dir
+      size: 13245
+      nfiles: 4

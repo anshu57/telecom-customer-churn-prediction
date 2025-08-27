@@ -22,8 +22,20 @@ def get_all_run_ids(experiment_name: str) -> pd.DataFrame:
         if experiment is None:
             raise ValueError(f"Experiment '{experiment_name}' not found.")
         
-        runs = mlflow.search_runs(experiment_ids=[experiment.experiment_id])
+        # KEY CHANGE: Filter for runs that have a parentRunId tag
+        runs = mlflow.search_runs(
+            experiment_ids=[experiment.experiment_id])
+        runs = runs[~runs['tags.mlflow.parentRunId'].isna()]
         return runs
+
+    # try:
+    #     experiment = mlflow.get_experiment_by_name(experiment_name)
+    #     if experiment is None:
+    #         raise ValueError(f"Experiment '{experiment_name}' not found.")
+        
+    #     runs = mlflow.search_runs(experiment_ids=[experiment.experiment_id])
+
+    #     return runs
     except Exception as e:
         print(f"Error fetching MLflow runs: {e}")
         return pd.DataFrame()

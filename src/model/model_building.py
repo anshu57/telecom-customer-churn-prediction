@@ -63,54 +63,63 @@ def train_multiple_models_with_penalties(training_data_path, params_path = 'para
     X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
 
     best_metric = 0
+    #for penalty in params['penalties']:
+    with mlflow.start_run(run_name=f"LogisticRegression") as parent_run:
+        parent_run_id = parent_run.info.run_id
+        for penalty in params['penalties']:
+            with mlflow.start_run(nested=True, run_name=f"LogisticRegression_{penalty}"):
+                print(f"Starting MLflow run for Logistic Regression with penalty: {penalty}")
+                
+                
+                # Log parameters
+                mlflow.log_params(params)
+                mlflow.log_param('penalty', penalty)
+                
+                # Initialize the Logistic Regression model with the specified penalty
+                if penalty == 'elasticnet':
+                    # 'saga' solver is required for elasticnet penalty
+                    model = LogisticRegression(penalty=penalty, l1_ratio=params['l1_ratio'], solver='saga', random_state=params['random_state'])
+                else:
+                    # 'liblinear' solver is required for l1 and l2 penalties
+                    model = LogisticRegression(penalty=penalty, solver='liblinear', random_state=params['random_state'])
 
-    for penalty in params['penalties']:
-        with mlflow.start_run(run_name=f"LogisticRegression_{penalty}") as run:
-            print(f"Starting MLflow run for Logistic Regression with penalty: {penalty}")
+                model.fit(X_train_resampled, y_train_resampled)
+                
+                y_pred_train = model.predict(X_train)
+                # try:
+                #     with open(model_name, "wb") as file:
+                #         pickle.dump(model, file)
+                # except Exception as e:
+                #     raise Exception(f"Error saving model to {model_name}: {e}")
 
-            # Log parameters
-            mlflow.log_params(params)
-            mlflow.log_param('penalty', penalty)
-            
-            # Initialize the Logistic Regression model with the specified penalty
-            if penalty == 'elasticnet':
-                # 'saga' solver is required for elasticnet penalty
-                model = LogisticRegression(penalty=penalty, l1_ratio=params['l1_ratio'], solver='saga', random_state=params['random_state'])
-            else:
-                # 'liblinear' solver is required for l1 and l2 penalties
-                model = LogisticRegression(penalty=penalty, solver='liblinear', random_state=params['random_state'])
+                report = classification_report(y_train, y_pred_train, output_dict=True)
+                mlflow.log_metric('train_accuracy', report['accuracy'])
+                mlflow.log_metric('train_precision_no_churn', report['0']['precision'])
+                mlflow.log_metric('train_recall_no_churn', report['0']['recall'])
+                mlflow.log_metric('train_f1_no_churn', report['0']['f1-score'])
+                mlflow.log_metric('train_precision_churn', report['1']['precision'])
+                mlflow.log_metric('train_recall_churn', report['1']['recall'])
+                mlflow.log_metric('train_f1_churn', report['1']['f1-score'])
+                
+                signature = infer_signature(X_train,model.predict(X_train))
+                mlflow.sklearn.log_model(sk_model=model, artifact_path=f"model_{penalty}", signature=signature)
 
-            model.fit(X_train_resampled, y_train_resampled)
-            
-            y_pred_train = model.predict(X_train)
-            # try:
-            #     with open(model_name, "wb") as file:
-            #         pickle.dump(model, file)
-            # except Exception as e:
-            #     raise Exception(f"Error saving model to {model_name}: {e}")
-
-            report = classification_report(y_train, y_pred_train, output_dict=True)
-            mlflow.log_metric('train_accuracy', report['accuracy'])
-            mlflow.log_metric('train_precision_no_churn', report['0']['precision'])
-            mlflow.log_metric('train_recall_no_churn', report['0']['recall'])
-            mlflow.log_metric('train_f1_no_churn', report['0']['f1-score'])
-            mlflow.log_metric('train_precision_churn', report['1']['precision'])
-            mlflow.log_metric('train_recall_churn', report['1']['recall'])
-            mlflow.log_metric('train_f1_churn', report['1']['f1-score'])
-            
-            signature = infer_signature(X_train,model.predict(X_train))
-            mlflow.sklearn.log_model(sk_model=model, artifact_path=f"model_{penalty}", signature=signature)
-
-            # Generate and log confusion matrix
-            cm = confusion_matrix(y_train, y_pred_train)
-            plt.figure(figsize=(8, 6))
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['No Churn', 'Churn'], yticklabels=['No Churn', 'Churn'])
-            plt.title(f'Confusion Matrix for Logistic Regression ({penalty})')
-            plt.xlabel('Predicted Label')
-            plt.ylabel('True Label')
-            plt.savefig(f"reports/confusion_matrix_{penalty}.png")
-            mlflow.log_artifact(f"confusion_matrix_{penalty}.png")
-            plt.close()
+                # Generate and log confusion matrix
+                cm = confusion_matrix(y_train, y_pred_train)
+                plt.figure(figsize=(8, 6))
+                sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['No Churn', 'Churn'], yticklabels=['No Churn', 'Churn'])
+                plt.title(f'Confusion Matrix for Logistic Regression ({penalty})')
+                plt.xlabel('Predicted Label')
+                plt.ylabel('True Label')
+                if not os.path.isdir('./reports'):
+                    os.makedirs('./reports')
+                file_name = f'train_{penalty}.json'
+                with open(os.path.join('./reports',file_name), 'w') as file:
+                        json.dump(report, file, indent=4)
+                
+                plt.savefig(f"reports/confusion_matrix_{penalty}.png")
+                mlflow.log_artifact(f"reports/confusion_matrix_{penalty}.png")
+                plt.close()
 
     print("All models trained and evaluated. Results logged to MLflow/DagsHub.")
 

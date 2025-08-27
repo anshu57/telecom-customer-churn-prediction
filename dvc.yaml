@@ -20,7 +20,6 @@ stages:
     - src/data/data_split.py
     outs:
     - data/processed
-  
   model_building:
     cmd: python src/model/model_building.py
     deps:
@@ -29,6 +28,12 @@ stages:
     params:
     - train
     metrics:
-    - metrics.json:
+    - reports:
         cache: false
+  model_eval_reg:
+    cmd: python src/model/model_eval_reg.py
+    deps:
+    - src/model
+    - ./data/processed
+
     
