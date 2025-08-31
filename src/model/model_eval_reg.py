@@ -54,10 +54,18 @@ def evaluate_and_register_best_model(test_data_path: str, experiment_name: str):
     warnings.filterwarnings('ignore')
     
     # DagsHub repository details
+    dagshub_token = os.getenv("DAGSHUB_TOKEN")
+    if not dagshub_token:
+        raise EnvironmentError("DAGSHUB_TOKEN env variable is not set")
+
+
+    os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+    
     dagshub_url = "https://dagshub.com"
     repo_owner = 'anshu57'
     repo_name = 'telecom-customer-churn-prediction'
-    dagshub.init(repo_owner='anshu57', repo_name='telecom-customer-churn-prediction', mlflow=True)
+    # dagshub.init(repo_owner='anshu57', repo_name='telecom-customer-churn-prediction', mlflow=True)
     mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 
     # Load the processed test data

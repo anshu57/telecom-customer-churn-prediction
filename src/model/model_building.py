@@ -14,20 +14,20 @@ import dagshub
 import pickle
 import json
 
-# dagshub_token = os.getenv("DAGSHUB_TOKEN")
-# if not dagshub_token:
-#     raise EnvironmentError("DAGSHUB_TOKEN env variable is not set")
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_TOKEN env variable is not set")
 
 
-# os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
-# os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 
 print("experimenting LR model")
 # DagsHub repository details
 dagshub_url = "https://dagshub.com"
 repo_owner = 'anshu57'
 repo_name = 'telecom-customer-churn-prediction'
-dagshub.init(repo_owner='anshu57', repo_name='telecom-customer-churn-prediction', mlflow=True)
+# dagshub.init(repo_owner='anshu57', repo_name='telecom-customer-churn-prediction', mlflow=True)
 mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 mlflow.set_experiment("Logistic_Regression")
 
