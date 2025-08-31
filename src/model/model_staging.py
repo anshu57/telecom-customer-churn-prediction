@@ -4,10 +4,8 @@ import mlflow
 
 import dagshub
 
-# # Initialize Dags hub and set up mlflow experiment tracking
+# Initialize Dags hub and set up mlflow experiment tracking
 # dagshub.init(repo_owner='anshu57', repo_name='mlops_water_potability', mlflow=True)
-# mlflow.set_tracking_uri("https://dagshub.com/anshu57/mlops_water_potability.mlflow")
-# mlflow.set_experiment("Final_Model")
 
 import os
 dagshub_token = os.getenv("DAGSHUB_TOKEN")
@@ -32,8 +30,8 @@ reports_path = "reports/best_model.json"
 with open(reports_path, 'r') as file:
     run_info = json.load(file)
 
-run_id = run_info['run_id'] # Fetch run id from the JSON file
-model_name = run_info['model_name']  # Fetch model name from the JSON file
+run_id = run_info['best_run_id'] # Fetch run id from the JSON file
+model_name = run_info['best_model_name']  # Fetch model name from the JSON file
 
 # Create an MLflow client
 client = MlflowClient()

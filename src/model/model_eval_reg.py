@@ -124,6 +124,15 @@ def evaluate_and_register_best_model(test_data_path: str, experiment_name: str):
                 plt.title(f'Confusion Matrix for Logistic Regression test ({run['params.penalty']})')
                 plt.xlabel('Predicted Label')
                 plt.ylabel('True Label')
+                 
+                if not os.path.isdir('./reports/test/'):
+                    os.makedirs('./reports/test/')
+                file_name = f'test_{run['params.penalty']}.json'
+                with open(os.path.join('./reports/test',file_name), 'w') as file:
+                        json.dump(report, file, indent=4)
+                plt.savefig(f"reports/test/confusion_matrix_test{run['params.penalty']}.png")
+                print('logging confusion matrix')
+                mlflow.log_artifact(f"reports/test/confusion_matrix_test{run['params.penalty']}.png", artifact_path="plots")
 
             # Check if this is the best model so far
             if accuracy > best_accuracy:
@@ -131,13 +140,6 @@ def evaluate_and_register_best_model(test_data_path: str, experiment_name: str):
                 best_run_id = run_id
                 best_model_name = run['params.penalty']
                 best_metrics_report = report
-            if not os.path.isdir('./reports/test/'):
-                    os.makedirs('./reports/test/')
-            file_name = f'test_{run['params.penalty']}.json'
-            with open(os.path.join('./reports/test',file_name), 'w') as file:
-                    json.dump(report, file, indent=4)
-            plt.savefig(f"reports/test/confusion_matrix_test{run['params.penalty']}.png")
-            mlflow.log_artifact(f"reports/test/confusion_matrix_test{run['params.penalty']}.png")
 
         except Exception as e:
             print(f"Could not load or evaluate model for run ID {run_id}. Error: {e}")

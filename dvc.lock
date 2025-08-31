@@ -103,6 +103,6 @@ stages:
       nfiles: 2
     - path: src/model
       hash: md5
-      md5: 290851bdfe559e3cca8b52630414d933.dir
-      size: 14286
+      md5: a2e67e0dd995c9564dd26222361b917d.dir
+      size: 14452
       nfiles: 4

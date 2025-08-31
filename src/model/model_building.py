@@ -118,7 +118,7 @@ def train_multiple_models_with_penalties(training_data_path, params_path = 'para
                         json.dump(report, file, indent=4)
                 
                 plt.savefig(f"reports/train/confusion_matrix_train{penalty}.png")
-                mlflow.log_artifact(f"reports/train/confusion_matrix_train{penalty}.png")
+                mlflow.log_artifact(f"reports/train/confusion_matrix_train{penalty}.png",artifact_path="plots")
                 plt.close()
 
     print("All models trained and evaluated. Results logged to MLflow/DagsHub.")
