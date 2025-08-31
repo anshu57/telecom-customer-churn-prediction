@@ -28,7 +28,7 @@ mlflow.set_experiment("Logistic Regression")
 
 
 # Load the run ID and model name from the saved JSON file
-reports_path = "reports/run_info.json"
+reports_path = "reports/best_model.json"
 with open(reports_path, 'r') as file:
     run_info = json.load(file)
 

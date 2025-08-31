@@ -38,7 +38,7 @@ stages:
   model_staging:
     cmd: python src/model/model_staging.py
     deps:
-    - reports/run_info.json
+    - reports/best_model.json
     - src/model/model_staging.py
     
 
