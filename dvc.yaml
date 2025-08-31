@@ -35,6 +35,11 @@ stages:
     deps:
     - src/model
     - ./data/processed
+  model_staging:
+    cmd: python src/model/model_staging.py
+    deps:
+    - reports/run_info.json
+    - src/model/model_staging.py
     
 
     
