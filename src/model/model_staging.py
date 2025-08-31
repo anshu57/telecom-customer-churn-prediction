@@ -20,7 +20,7 @@ dagshub_url = "https://dagshub.com"
 repo_owner = 'anshu57'
 repo_name = 'telecom-customer-churn-prediction'
 mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
-mlflow.set_experiment("Logistic Regression")
+mlflow.set_experiment("Logistic_Regression")
 
 
 
