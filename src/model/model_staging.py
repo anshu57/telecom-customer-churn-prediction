@@ -5,7 +5,7 @@ import mlflow
 import dagshub
 
 # Initialize Dags hub and set up mlflow experiment tracking
-# dagshub.init(repo_owner='anshu57', repo_name='mlops_water_potability', mlflow=True)
+# dagshub.init(repo_owner='anshu57', repo_name='telecom-customer-churn-prediction', mlflow=True)
 
 import os
 dagshub_token = os.getenv("DAGSHUB_TOKEN")
@@ -18,7 +18,7 @@ os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 # DagsHub repository details
 dagshub_url = "https://dagshub.com"
 repo_owner = 'anshu57'
-repo_name = 'mlops_water_potability'
+repo_name = 'telecom-customer-churn-prediction'
 mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 mlflow.set_experiment("Logistic Regression")
 
