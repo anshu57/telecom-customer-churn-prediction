@@ -2,6 +2,7 @@ import mlflow
 from mlflow.tracking import MlflowClient
 import json
 import dagshub
+import os
 
 def transition_best_model_to_production(model_name: str, best_model_info_file: str):
     """
@@ -14,6 +15,15 @@ def transition_best_model_to_production(model_name: str, best_model_info_file: s
                                     model's run ID and metrics.
     """
     print("Connecting to MLflow Tracking Server...")
+
+    
+    dagshub_token = os.getenv("DAGSHUB_TOKEN")
+    if not dagshub_token:
+        raise EnvironmentError("DAGSHUB_TOKEN env variable is not set")
+
+    os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+
     # DagsHub repository details
     dagshub_url = "https://dagshub.com"
     repo_owner = 'anshu57'
