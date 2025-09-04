@@ -28,7 +28,7 @@ jobs:
        - name: Promote model to production
          if: success()
          env: 
-           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN}}
+           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
          run: python scripts/production.py
 
       #    # Log in to Dockerhub
